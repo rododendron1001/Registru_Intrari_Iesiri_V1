@@ -6,22 +6,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Registru_Intrari_Iesiri.Models;
+using Registru_Intrari_Iesiri.Services;
 
 namespace Registru_Intrari_Iesiri.Controllers
 {
     public class InOutRegisterEntriesController : Controller
     {
-        private readonly DataContext _context;
+        private readonly IInOutRegisterService _service;
 
-        public InOutRegisterEntriesController(DataContext context)
+        public InOutRegisterEntriesController(IInOutRegisterService service)
         {
-            _context = context;
+            _service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
         // GET: InOutRegisterEntries
         public async Task<IActionResult> Index()
         {
-            return View(await _context.InOutRegisterEntry.ToListAsync());
+            var entries = await _service.GetEntriesAsync();
+
+            return View(entries);
         }
 
         // GET: InOutRegisterEntries/Details/5
@@ -32,8 +35,8 @@ namespace Registru_Intrari_Iesiri.Controllers
                 return NotFound();
             }
 
-            var inOutRegisterEntry = await _context.InOutRegisterEntry
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var inOutRegisterEntry = await _service.GetByIdAsync(id.Value);
+                
             if (inOutRegisterEntry == null)
             {
                 return NotFound();
@@ -57,9 +60,15 @@ namespace Registru_Intrari_Iesiri.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(inOutRegisterEntry);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var success = await _service.CreateEntryAsync(inOutRegisterEntry);
+                if (success)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    ViewBag.ErrorMessage = "Something went wrong while creating contact list entry, please try again ...";
+                }
             }
             return View(inOutRegisterEntry);
 
@@ -73,7 +82,7 @@ namespace Registru_Intrari_Iesiri.Controllers
                 return NotFound();
             }
 
-            var inOutRegisterEntry = await _context.InOutRegisterEntry.FindAsync(id);
+            var inOutRegisterEntry = await _service.GetByIdAsync(id.Value);
             if (inOutRegisterEntry == null)
             {
                 return NotFound();
@@ -97,12 +106,21 @@ namespace Registru_Intrari_Iesiri.Controllers
             {
                 try
                 {
-                    _context.Update(inOutRegisterEntry);
-                    await _context.SaveChangesAsync();
+                    var success = await _service.UpdateEntryAsync(inOutRegisterEntry);
+                    if (success)
+                    {
+                        return RedirectToAction(nameof(Index));
+                    }
+                    else
+                    {
+                        ViewBag.ErrorMessage = "Something went wrong while updating contact list entry, please try again ...";
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!InOutRegisterEntryExists(inOutRegisterEntry.Id))
+                    var entry = await _service.GetByIdAsync(inOutRegisterEntry.Id);
+
+                    if (entry is null)
                     {
                         return NotFound();
                     }
@@ -124,14 +142,14 @@ namespace Registru_Intrari_Iesiri.Controllers
                 return NotFound();
             }
 
-            var inOutRegisterEntry = await _context.InOutRegisterEntry
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (inOutRegisterEntry == null)
+            var entry = await _service.GetByIdAsync(id.Value);
+
+            if (entry is null)
             {
                 return NotFound();
             }
 
-            return View(inOutRegisterEntry);
+            return View(entry);
         }
 
         // POST: InOutRegisterEntries/Delete/5
@@ -139,15 +157,15 @@ namespace Registru_Intrari_Iesiri.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var inOutRegisterEntry = await _context.InOutRegisterEntry.FindAsync(id);
-            _context.InOutRegisterEntry.Remove(inOutRegisterEntry);
-            await _context.SaveChangesAsync();
+            var success = await _service.DeleteEntryAsync(id);
+            if (!success)
+            {
+                return RedirectToAction(nameof(Delete), new { id });
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
-        private bool InOutRegisterEntryExists(int id)
-        {
-            return _context.InOutRegisterEntry.Any(e => e.Id == id);
-        }
+       
     }
 }

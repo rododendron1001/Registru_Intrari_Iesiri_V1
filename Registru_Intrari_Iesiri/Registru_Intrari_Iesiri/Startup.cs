@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Registru_Intrari_Iesiri.Services;
 
 namespace Registru_Intrari_Iesiri
 {
@@ -28,6 +29,7 @@ namespace Registru_Intrari_Iesiri
 
             services.AddDbContext<DataContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("DataContext")));
+            services.AddTransient<IInOutRegisterService, InOutRegisterService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
