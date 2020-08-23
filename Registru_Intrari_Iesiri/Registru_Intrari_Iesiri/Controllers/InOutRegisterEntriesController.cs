@@ -62,6 +62,7 @@ namespace Registru_Intrari_Iesiri.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(inOutRegisterEntry);
+
         }
 
         // GET: InOutRegisterEntries/Edit/5
