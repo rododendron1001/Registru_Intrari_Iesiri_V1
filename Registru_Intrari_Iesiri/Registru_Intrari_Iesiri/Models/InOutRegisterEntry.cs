@@ -9,24 +9,32 @@ namespace Registru_Intrari_Iesiri.Models
 {
     public class InOutRegisterEntry
     {
-        [Key] 
+        [Key]
+        [Required]
         public int Id { get; set; }
 
         [Range(1,int.MaxValue)]
+        [Required]
+        [Display(Name = "Document Number")]
         public int DocNumber { get; set; }
 
         [DataType(DataType.Date)]
+        [Required]
+        [Display(Name = "Document Data")]
         public DateTime DocDate { get; set; }
 
         [ForeignKey("CustomerId") ]
         public Customer Customer { get; set; }
 
         [StringLength(1000)]
+        [Display(Name = "Request Description")]
         public string Description { get; set; }
 
         public EntryStatus Status { get; set; }
 
         [StringLength(1000)]
+        [Required]
+        [Display(Name = "Resolution")]
         public string Resolution { get; set; }
     }
 }
