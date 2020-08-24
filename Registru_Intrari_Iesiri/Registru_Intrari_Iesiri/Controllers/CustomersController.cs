@@ -6,22 +6,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Registru_Intrari_Iesiri.Models;
+using Registru_Intrari_Iesiri.Services;
 
 namespace Registru_Intrari_Iesiri.Controllers
 {
     public class CustomersController : Controller
     {
-        private readonly DataContext _context;
+        private readonly ICustomerService _service;
 
-        public CustomersController(DataContext context)
+        public CustomersController(ICustomerService service)
         {
-            _context = context;
+            _service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
         // GET: Customers
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Customer.ToListAsync());
+            var entries = await _service.GetEntriesAsync();
+
+            return View(entries);
         }
 
         // GET: Customers/Details/5
@@ -32,8 +35,8 @@ namespace Registru_Intrari_Iesiri.Controllers
                 return NotFound();
             }
 
-            var customer = await _context.Customer
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var customer = await _service.GetByIdAsync(id.Value);
+
             if (customer == null)
             {
                 return NotFound();
@@ -57,9 +60,15 @@ namespace Registru_Intrari_Iesiri.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(customer);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var success = await _service.CreateEntryAsync(customer);
+                if (success)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    ViewBag.ErrorMessage = "Something went wrong while creating customer entry, please try again ...";
+                }
             }
             return View(customer);
         }
@@ -72,7 +81,7 @@ namespace Registru_Intrari_Iesiri.Controllers
                 return NotFound();
             }
 
-            var customer = await _context.Customer.FindAsync(id);
+            var customer = await _service.GetByIdAsync(id.Value);
             if (customer == null)
             {
                 return NotFound();
@@ -96,12 +105,21 @@ namespace Registru_Intrari_Iesiri.Controllers
             {
                 try
                 {
-                    _context.Update(customer);
-                    await _context.SaveChangesAsync();
+                    var success = await _service.UpdateEntryAsync(customer);
+                    if (success)
+                    {
+                        return RedirectToAction(nameof(Index));
+                    }
+                    else
+                    {
+                        ViewBag.ErrorMessage = "Something went wrong while updating customers, please try again ...";
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CustomerExists(customer.Id))
+                    var entry = await _service.GetByIdAsync(customer.Id);
+
+                    if (entry is null)
                     {
                         return NotFound();
                     }
@@ -123,14 +141,14 @@ namespace Registru_Intrari_Iesiri.Controllers
                 return NotFound();
             }
 
-            var customer = await _context.Customer
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (customer == null)
+            var entry = await _service.GetByIdAsync(id.Value);
+
+            if (entry is null)
             {
                 return NotFound();
             }
 
-            return View(customer);
+            return View(entry);
         }
 
         // POST: Customers/Delete/5
@@ -138,15 +156,15 @@ namespace Registru_Intrari_Iesiri.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var customer = await _context.Customer.FindAsync(id);
-            _context.Customer.Remove(customer);
-            await _context.SaveChangesAsync();
+            var success = await _service.DeleteEntryAsync(id);
+            if (!success)
+            {
+                return RedirectToAction(nameof(Delete), new { id });
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CustomerExists(int id)
-        {
-            return _context.Customer.Any(e => e.Id == id);
-        }
+       
     }
 }

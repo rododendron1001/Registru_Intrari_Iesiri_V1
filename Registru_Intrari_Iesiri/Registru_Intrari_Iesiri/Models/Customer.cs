@@ -11,6 +11,8 @@ namespace Registru_Intrari_Iesiri.Models
         [Key]
         public int Id { get; set; }
 
+        [Required(ErrorMessage = "Please enter Customer Name.")]
+        [Display(Name = "Customer Name")]
         [StringLength(100)]
         public string Name { get; set; }
 

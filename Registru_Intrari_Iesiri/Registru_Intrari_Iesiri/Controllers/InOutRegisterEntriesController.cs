@@ -74,7 +74,7 @@ namespace Registru_Intrari_Iesiri.Controllers
                 }
                 else
                 {
-                    ViewBag.ErrorMessage = "Something went wrong while creating contact list entry, please try again ...";
+                    ViewBag.ErrorMessage = "Something went wrong while creating in out register entry, please try again ...";
                 }
             }
             return View(inOutRegisterEntry);
@@ -120,7 +120,7 @@ namespace Registru_Intrari_Iesiri.Controllers
                     }
                     else
                     {
-                        ViewBag.ErrorMessage = "Something went wrong while updating contact list entry, please try again ...";
+                        ViewBag.ErrorMessage = "Something went wrong while updating in out register entry, please try again ...";
                     }
                 }
                 catch (DbUpdateConcurrencyException)
