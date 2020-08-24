@@ -17,5 +17,9 @@ namespace Registru_Intrari_Iesiri.Services
         Task<bool> UpdateEntryAsync(InOutRegisterEntry entry);
 
         Task<bool> DeleteEntryAsync(int id);
+
+        Task<int> GetNextDocumentNumber();
     }
+
+   
 }

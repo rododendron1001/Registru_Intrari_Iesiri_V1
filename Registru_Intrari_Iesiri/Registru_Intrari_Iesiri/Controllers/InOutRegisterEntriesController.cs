@@ -46,9 +46,16 @@ namespace Registru_Intrari_Iesiri.Controllers
         }
 
         // GET: InOutRegisterEntries/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            var viewModel = new InOutRegisterEntry()
+            {
+                DocNumber = await _service.GetNextDocumentNumber(),
+                DocDate = DateTime.Today
+
+            };
+
+            return View(viewModel);
         }
 
         // POST: InOutRegisterEntries/Create

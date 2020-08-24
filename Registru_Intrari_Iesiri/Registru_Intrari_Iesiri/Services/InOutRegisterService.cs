@@ -57,5 +57,24 @@ namespace Registru_Intrari_Iesiri.Services
 
             return deletedRows > 0;
         }
+
+        public async Task<int> GetNextDocumentNumber()
+        {
+            using (var command = _context.Database.GetDbConnection().CreateCommand())
+            {
+                command.CommandText = "SELECT current_value FROM sys.sequences WHERE name = 'DocumentNumberSequence' ;";
+                _context.Database.OpenConnection();
+                var result = await command.ExecuteScalarAsync();
+                if (result == DBNull.Value )
+                {
+                    return 0;
+                }
+                return Convert.ToInt32(result);
+
+
+                
+            }
+
+        }
     }
 }

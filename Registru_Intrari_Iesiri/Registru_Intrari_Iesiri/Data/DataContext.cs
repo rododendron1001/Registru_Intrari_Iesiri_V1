@@ -13,4 +13,5 @@ using Registru_Intrari_Iesiri.Models;
         }
 
         public DbSet<Registru_Intrari_Iesiri.Models.InOutRegisterEntry> InOutRegisterEntry { get; set; }
-    }
+   
+}
