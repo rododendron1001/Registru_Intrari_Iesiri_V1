@@ -65,6 +65,7 @@ namespace Registru_Intrari_Iesiri.Services
                 command.CommandText = "SELECT current_value FROM sys.sequences WHERE name = 'DocumentNumberSequence' ;";
                 _context.Database.OpenConnection();
                 var result = await command.ExecuteScalarAsync();
+               
                 if (result == DBNull.Value )
                 {
                     return 0;

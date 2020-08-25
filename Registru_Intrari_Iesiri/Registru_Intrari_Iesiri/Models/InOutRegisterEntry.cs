@@ -14,12 +14,10 @@ namespace Registru_Intrari_Iesiri.Models
         public int Id { get; set; }
 
         [Range(1,int.MaxValue)]
-        [Required(ErrorMessage = "Please enter Document Data.")]
         [Display(Name = "Document Number")]
         public int DocNumber { get; set; }
 
         [DataType(DataType.Date)]
-        [Required(ErrorMessage = "Please enter Document Data.")]
         [Display(Name = "Document Data")]
         public DateTime DocDate { get; set; }
 
@@ -27,6 +25,7 @@ namespace Registru_Intrari_Iesiri.Models
         public Customer Customer { get; set; }
 
         [StringLength(1000)]
+        [Required(ErrorMessage = "Please enter Description.")]
         [Display(Name = "Request Description")]
         public string Description { get; set; }
 
